@@ -1,6 +1,14 @@
 
 package my_pakage;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 public class Login extends javax.swing.JFrame {
 
@@ -114,6 +122,23 @@ public class Login extends javax.swing.JFrame {
         jButton1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("LOGIN");
+        jButton1.addActionListener((ActionListener) new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String nom = textField1.getText();
+                char[] passwordArray = jPasswordField1.getPassword();
+                String password = new String(passwordArray);
+
+                try {
+                    authenticateUser(nom, password);
+                } catch (ClassNotFoundException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+            }
+
+           
+        });
 
         jButton2.setBackground(new java.awt.Color(204, 204, 204));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
@@ -251,6 +276,68 @@ public class Login extends javax.swing.JFrame {
         //</editor-fold>
      
     }
+    public static boolean authenticateUser(String email, String motDePasse) throws ClassNotFoundException {
+    Class.forName("com.mysql.cj.jdbc.Driver");
+    String url = "jdbc:mysql://localhost:3306/ihm";
+    String utilisateur = "root";
+    String motDePasseDB = "minecraft"; // Remplace par ton mot de passe MySQL
+
+    String query = "SELECT * FROM utilisateur WHERE email = ? AND mot_de_passe = ?";
+
+    try (Connection connection = DriverManager.getConnection(url, utilisateur, motDePasseDB);
+         PreparedStatement statement = connection.prepareStatement(query)) {
+
+        // Lier les paramètres
+        statement.setString(1, email);
+        statement.setString(2, motDePasse);
+
+        // Exécuter la requête
+        ResultSet resultSet = statement.executeQuery();
+
+        // Vérifier si un utilisateur correspondant a été trouvé
+        if (resultSet.next()) {
+            // Redirection vers une nouvelle page
+            JOptionPane.showMessageDialog(null, 
+                "Connexion réussie ! Bienvenue.", 
+                "Succès", 
+                JOptionPane.INFORMATION_MESSAGE);
+
+            // Lancer la nouvelle page (par exemple, une classe MainPage)
+            UserTable UserTable = new UserTable(); // Remplace avec ton implémentation
+            UserTable.afficherUtilisateurs();
+          
+
+            return true;
+        } else {
+            // Afficher un pop-up d'erreur si les identifiants sont incorrects
+            JOptionPane.showMessageDialog(null, 
+                "Erreur : Email ou mot de passe incorrect.", 
+                "Erreur", 
+                JOptionPane.ERROR_MESSAGE);
+
+            return false;
+        }
+
+    } catch (SQLException e) {
+        // Gérer les erreurs SQL
+        JOptionPane.showMessageDialog(null, 
+            "Erreur de connexion à la base de données : " + e.getMessage(), 
+            "Erreur", 
+            JOptionPane.ERROR_MESSAGE);
+
+        e.printStackTrace();
+        return false;
+    } catch (Exception e) {
+        // Gérer les erreurs générales
+        JOptionPane.showMessageDialog(null, 
+            "Une erreur inattendue s'est produite : " + e.getMessage(), 
+            "Erreur", 
+            JOptionPane.ERROR_MESSAGE);
+
+        e.printStackTrace();
+        return false;
+    }
+}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Left;

@@ -6,6 +6,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "UserTable",
+      "request": "launch",
+      "mainClass": "IHM2/my_pakage.UserTable",
+      "projectName": "ihm2_edcd14bf"
+    },
+    {
+      "type": "java",
       "name": "Current File",
       "request": "launch",
       "mainClass": "${file}"
